@@ -31,3 +31,20 @@ func (q *Queries) UpsertCountry(ctx context.Context, arg UpsertCountryParams) (C
 	err := row.Scan(&i.Iso31661, &i.Name)
 	return i, err
 }
+
+const upsertCountryISO = `-- name: UpsertCountryISO :one
+INSERT INTO countries (
+  iso_3166_1
+) VALUES (
+  $1
+)
+ON CONFLICT (iso_3166_1) DO NOTHING
+RETURNING iso_3166_1, name
+`
+
+func (q *Queries) UpsertCountryISO(ctx context.Context, iso31661 string) (Country, error) {
+	row := q.queryRow(ctx, q.upsertCountryISOStmt, upsertCountryISO, iso31661)
+	var i Country
+	err := row.Scan(&i.Iso31661, &i.Name)
+	return i, err
+}

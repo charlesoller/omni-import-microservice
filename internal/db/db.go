@@ -30,14 +30,26 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.upsertCountryStmt, err = db.PrepareContext(ctx, upsertCountry); err != nil {
 		return nil, fmt.Errorf("error preparing query UpsertCountry: %w", err)
 	}
+	if q.upsertCountryISOStmt, err = db.PrepareContext(ctx, upsertCountryISO); err != nil {
+		return nil, fmt.Errorf("error preparing query UpsertCountryISO: %w", err)
+	}
 	if q.upsertGenreStmt, err = db.PrepareContext(ctx, upsertGenre); err != nil {
 		return nil, fmt.Errorf("error preparing query UpsertGenre: %w", err)
+	}
+	if q.upsertLanguageStmt, err = db.PrepareContext(ctx, upsertLanguage); err != nil {
+		return nil, fmt.Errorf("error preparing query UpsertLanguage: %w", err)
 	}
 	if q.upsertMovieStmt, err = db.PrepareContext(ctx, upsertMovie); err != nil {
 		return nil, fmt.Errorf("error preparing query UpsertMovie: %w", err)
 	}
+	if q.upsertMovieCountryStmt, err = db.PrepareContext(ctx, upsertMovieCountry); err != nil {
+		return nil, fmt.Errorf("error preparing query UpsertMovieCountry: %w", err)
+	}
 	if q.upsertMovieGenreStmt, err = db.PrepareContext(ctx, upsertMovieGenre); err != nil {
 		return nil, fmt.Errorf("error preparing query UpsertMovieGenre: %w", err)
+	}
+	if q.upsertMovieLanguageStmt, err = db.PrepareContext(ctx, upsertMovieLanguage); err != nil {
+		return nil, fmt.Errorf("error preparing query UpsertMovieLanguage: %w", err)
 	}
 	if q.upsertMovieProductionCompanyStmt, err = db.PrepareContext(ctx, upsertMovieProductionCompany); err != nil {
 		return nil, fmt.Errorf("error preparing query UpsertMovieProductionCompany: %w", err)
@@ -60,9 +72,19 @@ func (q *Queries) Close() error {
 			err = fmt.Errorf("error closing upsertCountryStmt: %w", cerr)
 		}
 	}
+	if q.upsertCountryISOStmt != nil {
+		if cerr := q.upsertCountryISOStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing upsertCountryISOStmt: %w", cerr)
+		}
+	}
 	if q.upsertGenreStmt != nil {
 		if cerr := q.upsertGenreStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing upsertGenreStmt: %w", cerr)
+		}
+	}
+	if q.upsertLanguageStmt != nil {
+		if cerr := q.upsertLanguageStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing upsertLanguageStmt: %w", cerr)
 		}
 	}
 	if q.upsertMovieStmt != nil {
@@ -70,9 +92,19 @@ func (q *Queries) Close() error {
 			err = fmt.Errorf("error closing upsertMovieStmt: %w", cerr)
 		}
 	}
+	if q.upsertMovieCountryStmt != nil {
+		if cerr := q.upsertMovieCountryStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing upsertMovieCountryStmt: %w", cerr)
+		}
+	}
 	if q.upsertMovieGenreStmt != nil {
 		if cerr := q.upsertMovieGenreStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing upsertMovieGenreStmt: %w", cerr)
+		}
+	}
+	if q.upsertMovieLanguageStmt != nil {
+		if cerr := q.upsertMovieLanguageStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing upsertMovieLanguageStmt: %w", cerr)
 		}
 	}
 	if q.upsertMovieProductionCompanyStmt != nil {
@@ -126,9 +158,13 @@ type Queries struct {
 	tx                               *sql.Tx
 	upsertCollectionStmt             *sql.Stmt
 	upsertCountryStmt                *sql.Stmt
+	upsertCountryISOStmt             *sql.Stmt
 	upsertGenreStmt                  *sql.Stmt
+	upsertLanguageStmt               *sql.Stmt
 	upsertMovieStmt                  *sql.Stmt
+	upsertMovieCountryStmt           *sql.Stmt
 	upsertMovieGenreStmt             *sql.Stmt
+	upsertMovieLanguageStmt          *sql.Stmt
 	upsertMovieProductionCompanyStmt *sql.Stmt
 	upsertProductionCompanyStmt      *sql.Stmt
 }
@@ -139,9 +175,13 @@ func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 		tx:                               tx,
 		upsertCollectionStmt:             q.upsertCollectionStmt,
 		upsertCountryStmt:                q.upsertCountryStmt,
+		upsertCountryISOStmt:             q.upsertCountryISOStmt,
 		upsertGenreStmt:                  q.upsertGenreStmt,
+		upsertLanguageStmt:               q.upsertLanguageStmt,
 		upsertMovieStmt:                  q.upsertMovieStmt,
+		upsertMovieCountryStmt:           q.upsertMovieCountryStmt,
 		upsertMovieGenreStmt:             q.upsertMovieGenreStmt,
+		upsertMovieLanguageStmt:          q.upsertMovieLanguageStmt,
 		upsertMovieProductionCompanyStmt: q.upsertMovieProductionCompanyStmt,
 		upsertProductionCompanyStmt:      q.upsertProductionCompanyStmt,
 	}

@@ -7,17 +7,17 @@ import (
 	"github.com/charlesoller/omni-import-microservice/internal/models"
 )
 
-type movieResponseConverter struct {
+type MovieResponseConverter struct {
 	movie *models.MovieDetailsResponse
 }
 
-func NewMovieResponseConverter(movie *models.MovieDetailsResponse) *movieResponseConverter {
-	return &movieResponseConverter{
+func NewMovieResponseConverter(movie *models.MovieDetailsResponse) *MovieResponseConverter {
+	return &MovieResponseConverter{
 		movie: movie,
 	}
 }
 
-func (s *movieResponseConverter) ToMovie() *db.UpsertMovieParams {
+func (s *MovieResponseConverter) ToMovie() *db.UpsertMovieParams {
 	m := s.movie
 
 	releaseDate, _ := time.Parse("2006-01-02", m.ReleaseDate)
@@ -50,7 +50,7 @@ func (s *movieResponseConverter) ToMovie() *db.UpsertMovieParams {
 	}
 }
 
-func (s *movieResponseConverter) ToCollection() *db.UpsertCollectionParams {
+func (s *MovieResponseConverter) ToCollection() *db.UpsertCollectionParams {
 	m := s.movie
 
 	return &db.UpsertCollectionParams{
@@ -61,7 +61,7 @@ func (s *movieResponseConverter) ToCollection() *db.UpsertCollectionParams {
 	}
 }
 
-func (s *movieResponseConverter) ToGenres() []*db.UpsertGenreParams {
+func (s *MovieResponseConverter) ToGenres() []*db.UpsertGenreParams {
 	m := s.movie
 	p := make([]*db.UpsertGenreParams, 0, len(m.Genres))
 
@@ -75,7 +75,7 @@ func (s *movieResponseConverter) ToGenres() []*db.UpsertGenreParams {
 	return p
 }
 
-func (s *movieResponseConverter) ToMovieGenres() []*db.UpsertMovieGenreParams {
+func (s *MovieResponseConverter) ToMovieGenres() []*db.UpsertMovieGenreParams {
 	m := s.movie
 	p := make([]*db.UpsertMovieGenreParams, 0, len(m.Genres))
 
@@ -89,7 +89,7 @@ func (s *movieResponseConverter) ToMovieGenres() []*db.UpsertMovieGenreParams {
 	return p
 }
 
-func (s *movieResponseConverter) ToProductionCompanies() []*db.UpsertProductionCompanyParams {
+func (s *MovieResponseConverter) ToProductionCompanies() []*db.UpsertProductionCompanyParams {
 	m := s.movie
 	p := make([]*db.UpsertProductionCompanyParams, 0, len(m.ProductionCompanies))
 
@@ -105,7 +105,7 @@ func (s *movieResponseConverter) ToProductionCompanies() []*db.UpsertProductionC
 	return p
 }
 
-func (s *movieResponseConverter) ToMovieProductionCompanies() []*db.UpsertMovieProductionCompanyParams {
+func (s *MovieResponseConverter) ToMovieProductionCompanies() []*db.UpsertMovieProductionCompanyParams {
 	m := s.movie
 	p := make([]*db.UpsertMovieProductionCompanyParams, 0, len(m.ProductionCompanies))
 
@@ -119,14 +119,57 @@ func (s *movieResponseConverter) ToMovieProductionCompanies() []*db.UpsertMovieP
 	return p
 }
 
-func (s *movieResponseConverter) ToCountry() []*db.UpsertCountryParams {
+func (s *MovieResponseConverter) ToCountries() []*db.UpsertCountryParams {
 	m := s.movie
-	p := make([]*db.UpsertMovieProductionCompanyParams, 0, len(m.ProductionCompanies))
+	p := make([]*db.UpsertCountryParams, 0, len(m.ProductionCountries))
 
-	for _, pc := range m.ProductionCompanies {
-		p = append(p, &db.UpsertMovieProductionCompanyParams{
+	for _, c := range m.ProductionCountries {
+		p = append(p, &db.UpsertCountryParams{
+			Iso31661: c.Iso31661,
+			Name:     c.Name,
+		})
+	}
+
+	return p
+}
+
+func (s *MovieResponseConverter) ToMovieCountries() []*db.UpsertMovieCountryParams {
+	m := s.movie
+	p := make([]*db.UpsertMovieCountryParams, 0, len(m.ProductionCountries))
+
+	for _, c := range m.ProductionCountries {
+		p = append(p, &db.UpsertMovieCountryParams{
 			MovieID:   int32(m.ID),
-			CompanyID: pc.ID,
+			CountryID: c.Iso31661,
+		})
+	}
+
+	return p
+}
+
+func (s *MovieResponseConverter) ToLanguages() []*db.UpsertLanguageParams {
+	m := s.movie
+	p := make([]*db.UpsertLanguageParams, 0, len(m.Languages))
+
+	for _, l := range m.Languages {
+		p = append(p, &db.UpsertLanguageParams{
+			Iso6391:     l.Iso6391,
+			Name:        l.Name,
+			EnglishName: l.EnglishName,
+		})
+	}
+
+	return p
+}
+
+func (s *MovieResponseConverter) ToMovieLanguages() []*db.UpsertMovieLanguageParams {
+	m := s.movie
+	p := make([]*db.UpsertMovieLanguageParams, 0, len(m.Languages))
+
+	for _, l := range m.Languages {
+		p = append(p, &db.UpsertMovieLanguageParams{
+			LanguageID: l.Iso6391,
+			MovieID:    int32(m.ID),
 		})
 	}
 

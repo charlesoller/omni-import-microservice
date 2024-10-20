@@ -8,6 +8,21 @@ import (
 	"time"
 )
 
+type CastMember struct {
+	ID                 int32   `json:"id"`
+	CastID             int32   `json:"cast_id"`
+	Character          string  `json:"character"`
+	CreditID           string  `json:"credit_id"`
+	Gender             int16   `json:"gender"`
+	Adult              bool    `json:"adult"`
+	KnownForDepartment string  `json:"known_for_department"`
+	Name               string  `json:"name"`
+	OriginalName       string  `json:"original_name"`
+	Popularity         float64 `json:"popularity"`
+	ProfilePath        string  `json:"profile_path"`
+	Order              int32   `json:"order"`
+}
+
 type Collection struct {
 	ID           int32  `json:"id"`
 	Name         string `json:"name"`
@@ -20,13 +35,40 @@ type Country struct {
 	Name     string `json:"name"`
 }
 
+type Credit struct {
+	ID int32 `json:"id"`
+}
+
+type CreditsCastMember struct {
+	CreditID int32 `json:"credit_id"`
+	CastID   int32 `json:"cast_id"`
+}
+
+type CreditsCrewMember struct {
+	CreditID int32 `json:"credit_id"`
+	CrewID   int32 `json:"crew_id"`
+}
+
+type CrewMember struct {
+	ID                 int32   `json:"id"`
+	CreditID           string  `json:"credit_id"`
+	Department         string  `json:"department"`
+	Job                string  `json:"job"`
+	Gender             int16   `json:"gender"`
+	Adult              bool    `json:"adult"`
+	KnownForDepartment string  `json:"known_for_department"`
+	Name               string  `json:"name"`
+	OriginalName       string  `json:"original_name"`
+	Popularity         float64 `json:"popularity"`
+	ProfilePath        string  `json:"profile_path"`
+}
+
 type Genre struct {
 	ID   int32  `json:"id"`
 	Name string `json:"name"`
 }
 
 type Language struct {
-	ID          int32  `json:"id"`
 	EnglishName string `json:"english_name"`
 	Iso6391     string `json:"iso_639_1"`
 	Name        string `json:"name"`
@@ -54,9 +96,19 @@ type Movie struct {
 	CollectionID     int32     `json:"collection_id"`
 }
 
+type MovieCountry struct {
+	MovieID   int32  `json:"movie_id"`
+	CountryID string `json:"country_id"`
+}
+
 type MovieGenre struct {
 	MovieID int32 `json:"movie_id"`
 	GenreID int32 `json:"genre_id"`
+}
+
+type MovieLanguage struct {
+	MovieID    int32  `json:"movie_id"`
+	LanguageID string `json:"language_id"`
 }
 
 type MovieProductionCompany struct {

@@ -7,3 +7,12 @@ INSERT INTO countries (
 ON CONFLICT (iso_3166_1) DO UPDATE SET
   name = EXCLUDED.name
 RETURNING *;
+
+-- name: UpsertCountryISO :one
+INSERT INTO countries (
+  iso_3166_1
+) VALUES (
+  $1
+)
+ON CONFLICT (iso_3166_1) DO NOTHING
+RETURNING *;

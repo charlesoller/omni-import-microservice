@@ -2,7 +2,6 @@ package services
 
 import (
 	"fmt"
-	"log"
 	"strconv"
 
 	"github.com/charlesoller/omni-import-microservice/internal/models"
@@ -37,12 +36,7 @@ func (s *tmdbService) makeRequest(endpoint string) (*models.MovieDetailsResponse
 func (s *tmdbService) GetMovieDetails(id int) (*models.MovieDetailsResponse, error) {
 	endpoint := fmt.Sprintf("/movie/%s", strconv.Itoa(id))
 	movie, err := s.makeRequest(endpoint)
-	if err != nil {
-		// handle error better here
-		log.Fatalln(err)
-	}
-	if movie.ID == 0 {
-		fmt.Printf("No movie found with id: %v\n", id)
+	if err != nil || movie.ID == 0 {
 		return nil, err
 	}
 

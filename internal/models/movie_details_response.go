@@ -4,17 +4,10 @@ import (
 	"github.com/charlesoller/omni-import-microservice/internal/db"
 )
 
-type languagePartial struct {
-	EnglishName string `json:"english_name"`
-	Iso6391     string `json:"iso_639_1"`
-	Name        string `json:"name"`
+type CreditsResponse struct {
+	Cast []db.CastMember `json:"cast"`
+	Crew []db.CrewMember `json:"crew"`
 }
-
-type countryPartial struct {
-	Iso31661 string `json:"iso_3166_1"`
-	Name     string `json:"name"`
-}
-
 type MovieDetailsResponse struct {
 	ID                  int                    `json:"id" db:"id"`
 	Adult               bool                   `json:"adult"`
@@ -31,14 +24,15 @@ type MovieDetailsResponse struct {
 	Popularity          float64                `json:"popularity"`
 	PosterPath          string                 `json:"poster_path"`
 	ProductionCompanies []db.ProductionCompany `json:"production_companies"`
-	ProductionCountries []countryPartial       `json:"production_countries"`
+	ProductionCountries []db.Country           `json:"production_countries"`
 	ReleaseDate         string                 `json:"release_date"`
 	Revenue             int64                  `json:"revenue"`
 	Runtime             int                    `json:"runtime"`
-	Languages           []languagePartial      `json:"spoken_language"`
+	Languages           []db.Language          `json:"spoken_languages"`
 	Status              string                 `json:"status"`
 	Tagline             string                 `json:"tagline"`
 	Title               string                 `json:"title"`
 	VoteAverage         float64                `json:"vote_average"`
 	VoteCount           int                    `json:"vote_count"`
+	Credits             CreditsResponse        `json:"credits"`
 }

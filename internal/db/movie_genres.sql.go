@@ -17,7 +17,7 @@ INSERT INTO movie_genres (
 )
 ON CONFLICT (movie_id, genre_id) DO UPDATE SET
   movie_id = EXCLUDED.movie_id,  
-  genre_id = EXCLUDED.genre_id 
+  genre_id = EXCLUDED.genre_id
 RETURNING movie_id, genre_id
 `
 
