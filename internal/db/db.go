@@ -27,6 +27,9 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.upsertCollectionStmt, err = db.PrepareContext(ctx, upsertCollection); err != nil {
 		return nil, fmt.Errorf("error preparing query UpsertCollection: %w", err)
 	}
+	if q.upsertCountryStmt, err = db.PrepareContext(ctx, upsertCountry); err != nil {
+		return nil, fmt.Errorf("error preparing query UpsertCountry: %w", err)
+	}
 	if q.upsertGenreStmt, err = db.PrepareContext(ctx, upsertGenre); err != nil {
 		return nil, fmt.Errorf("error preparing query UpsertGenre: %w", err)
 	}
@@ -36,6 +39,12 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.upsertMovieGenreStmt, err = db.PrepareContext(ctx, upsertMovieGenre); err != nil {
 		return nil, fmt.Errorf("error preparing query UpsertMovieGenre: %w", err)
 	}
+	if q.upsertMovieProductionCompanyStmt, err = db.PrepareContext(ctx, upsertMovieProductionCompany); err != nil {
+		return nil, fmt.Errorf("error preparing query UpsertMovieProductionCompany: %w", err)
+	}
+	if q.upsertProductionCompanyStmt, err = db.PrepareContext(ctx, upsertProductionCompany); err != nil {
+		return nil, fmt.Errorf("error preparing query UpsertProductionCompany: %w", err)
+	}
 	return &q, nil
 }
 
@@ -44,6 +53,11 @@ func (q *Queries) Close() error {
 	if q.upsertCollectionStmt != nil {
 		if cerr := q.upsertCollectionStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing upsertCollectionStmt: %w", cerr)
+		}
+	}
+	if q.upsertCountryStmt != nil {
+		if cerr := q.upsertCountryStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing upsertCountryStmt: %w", cerr)
 		}
 	}
 	if q.upsertGenreStmt != nil {
@@ -59,6 +73,16 @@ func (q *Queries) Close() error {
 	if q.upsertMovieGenreStmt != nil {
 		if cerr := q.upsertMovieGenreStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing upsertMovieGenreStmt: %w", cerr)
+		}
+	}
+	if q.upsertMovieProductionCompanyStmt != nil {
+		if cerr := q.upsertMovieProductionCompanyStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing upsertMovieProductionCompanyStmt: %w", cerr)
+		}
+	}
+	if q.upsertProductionCompanyStmt != nil {
+		if cerr := q.upsertProductionCompanyStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing upsertProductionCompanyStmt: %w", cerr)
 		}
 	}
 	return err
@@ -98,21 +122,27 @@ func (q *Queries) queryRow(ctx context.Context, stmt *sql.Stmt, query string, ar
 }
 
 type Queries struct {
-	db                   DBTX
-	tx                   *sql.Tx
-	upsertCollectionStmt *sql.Stmt
-	upsertGenreStmt      *sql.Stmt
-	upsertMovieStmt      *sql.Stmt
-	upsertMovieGenreStmt *sql.Stmt
+	db                               DBTX
+	tx                               *sql.Tx
+	upsertCollectionStmt             *sql.Stmt
+	upsertCountryStmt                *sql.Stmt
+	upsertGenreStmt                  *sql.Stmt
+	upsertMovieStmt                  *sql.Stmt
+	upsertMovieGenreStmt             *sql.Stmt
+	upsertMovieProductionCompanyStmt *sql.Stmt
+	upsertProductionCompanyStmt      *sql.Stmt
 }
 
 func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 	return &Queries{
-		db:                   tx,
-		tx:                   tx,
-		upsertCollectionStmt: q.upsertCollectionStmt,
-		upsertGenreStmt:      q.upsertGenreStmt,
-		upsertMovieStmt:      q.upsertMovieStmt,
-		upsertMovieGenreStmt: q.upsertMovieGenreStmt,
+		db:                               tx,
+		tx:                               tx,
+		upsertCollectionStmt:             q.upsertCollectionStmt,
+		upsertCountryStmt:                q.upsertCountryStmt,
+		upsertGenreStmt:                  q.upsertGenreStmt,
+		upsertMovieStmt:                  q.upsertMovieStmt,
+		upsertMovieGenreStmt:             q.upsertMovieGenreStmt,
+		upsertMovieProductionCompanyStmt: q.upsertMovieProductionCompanyStmt,
+		upsertProductionCompanyStmt:      q.upsertProductionCompanyStmt,
 	}
 }

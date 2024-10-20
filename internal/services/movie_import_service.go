@@ -36,6 +36,7 @@ func (s *movieImportService) importMovie(id int) {
 	defer cancel()
 
 	movie, err := s.tmdb.GetMovieDetails(id)
+
 	if err != nil {
 		// handle here
 		log.Fatalln(err)
@@ -48,12 +49,21 @@ func (s *movieImportService) importMovie(id int) {
 	m := conversions.NewMovieResponseConverter(movie)
 
 	err = s.db.ExecTx(txCtx, func(q *db.Queries) error {
-		for _, v := range m.ToGenre() {
+		for _, v := range m.ToGenres() {
 			_, err := q.UpsertGenre(txCtx, *v)
 			if err != nil {
 				log.Fatalln(err)
 			}
 		}
+
+		for _, v := range m.ToProductionCompanies() {
+			fmt.Println(v)
+			_, err := q.UpsertProductionCompany(txCtx, *v)
+			if err != nil {
+				log.Fatalln(err)
+			}
+		}
+
 		_, err := q.UpsertCollection(txCtx, *m.ToCollection())
 		if err != nil {
 			log.Fatalln(err)
@@ -64,8 +74,15 @@ func (s *movieImportService) importMovie(id int) {
 			log.Fatalln(err)
 		}
 
-		for _, v := range m.ToMovieGenre() {
+		for _, v := range m.ToMovieGenres() {
 			_, err := q.UpsertMovieGenre(txCtx, *v)
+			if err != nil {
+				log.Fatalln(err)
+			}
+		}
+
+		for _, v := range m.ToMovieProductionCompanies() {
+			_, err := q.UpsertMovieProductionCompany(txCtx, *v)
 			if err != nil {
 				log.Fatalln(err)
 			}

@@ -1,32 +1,32 @@
 -- +goose Up
 -- +goose StatementBegin
 
-CREATE TABLE origin_countries (
+CREATE TABLE IF NOT EXISTS origin_countries (
     id SERIAL PRIMARY KEY,
     iso_3166_1 VARCHAR(2) UNIQUE NOT NULL DEFAULT '',
     name VARCHAR(255) NOT NULL DEFAULT ''
 );
 
-CREATE TABLE production_companies (
+CREATE TABLE IF NOT EXISTS production_companies (
     id SERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL DEFAULT '',
     logo_path VARCHAR(255) DEFAULT '',
     origin_country VARCHAR(2) REFERENCES origin_countries(iso_3166_1) DEFAULT ''
 );
 
-CREATE TABLE genres (
+CREATE TABLE IF NOT EXISTS genres (
     id SERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL DEFAULT ''
 );
 
-CREATE TABLE collections (
+CREATE TABLE IF NOT EXISTS collections (
     id SERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL DEFAULT '',
     poster_path VARCHAR(255) DEFAULT '',
     backdrop_path VARCHAR(255) DEFAULT ''
 );
 
-CREATE TABLE movies (
+CREATE TABLE IF NOT EXISTS movies (
     id SERIAL PRIMARY KEY,
     title VARCHAR(255) NOT NULL DEFAULT '',
     original_title VARCHAR(255) NOT NULL DEFAULT '',
@@ -48,13 +48,13 @@ CREATE TABLE movies (
     collection_id INT REFERENCES collections(id) DEFAULT 0
 );
 
-CREATE TABLE movie_genres (
+CREATE TABLE IF NOT EXISTS movie_genres (
     movie_id INT REFERENCES movies(id),
     genre_id INT REFERENCES genres(id),
     PRIMARY KEY (movie_id, genre_id)
 );
 
-CREATE TABLE movie_production_companies (
+CREATE TABLE IF NOT EXISTS movie_production_companies (
     movie_id INT REFERENCES movies(id),
     company_id INT REFERENCES production_companies(id),
     PRIMARY KEY (movie_id, company_id)
@@ -65,12 +65,12 @@ CREATE TABLE movie_production_companies (
 -- +goose Down
 -- +goose StatementBegin
 
-DROP TABLE movie_production_companies;
-DROP TABLE movie_genres;
-DROP TABLE movies;
-DROP TABLE collections;
-DROP TABLE genres;
-DROP TABLE production_companies;
-DROP TABLE origin_countries;
+DROP TABLE IF EXISTS movie_production_companies;
+DROP TABLE IF EXISTS movie_genres;
+DROP TABLE IF EXISTS movies;
+DROP TABLE IF EXISTS collections;
+DROP TABLE IF EXISTS genres;
+DROP TABLE IF EXISTS production_companies;
+DROP TABLE IF EXISTS origin_countries;
 
 -- +goose StatementEnd

@@ -16,7 +16,6 @@ type Collection struct {
 }
 
 type Country struct {
-	ID       int32  `json:"id"`
 	Iso31661 string `json:"iso_3166_1"`
 	Name     string `json:"name"`
 }
