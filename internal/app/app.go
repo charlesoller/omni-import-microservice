@@ -30,8 +30,9 @@ func Setup() *echo.Echo {
 
 	// Services
 	tmdbService := services.NewTmdbService(tmdbAuth)
-	movieImportService := services.NewMovieImportService(tmdbService, store)
-	movieImportService.StartImport(182)
+	embeddingService := services.NewEmbeddingService()
+	movieImportService := services.NewMovieImportService(tmdbService, embeddingService, store)
+	movieImportService.StartImport(547)
 
 	return e
 }

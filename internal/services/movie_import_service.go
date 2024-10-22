@@ -12,14 +12,16 @@ import (
 )
 
 type movieImportService struct {
-	tmdb *tmdbService
-	db   *database.Store
+	tmdb  *tmdbService
+	embed *embeddingService
+	db    *database.Store
 }
 
-func NewMovieImportService(tmdb *tmdbService, store *database.Store) *movieImportService {
+func NewMovieImportService(tmdb *tmdbService, embed *embeddingService, store *database.Store) *movieImportService {
 	return &movieImportService{
-		tmdb: tmdb,
-		db:   store,
+		tmdb:  tmdb,
+		embed: embed,
+		db:    store,
 	}
 }
 
@@ -43,6 +45,11 @@ func (s *movieImportService) importMovie(id int) {
 	}
 
 	m := conversions.NewMovieResponseConverter(movie)
+	embedding, err := s.embed.EmbedMovie(m.ToEmbeddingArg())
+	if err != nil {
+		log.Fatalln(err)
+	}
+	fmt.Println(embedding)
 
 	if err = s.transact(m); err != nil {
 		// handle here

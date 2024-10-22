@@ -26,10 +26,10 @@ func (s *tmdbService) makeRequest(endpoint string) (*models.MovieDetailsResponse
 
 	headers := map[string]string{
 		"Accept":        "application/json",
-		"Authorization": auth,
+		"Authorization":  auth,
 	}
 
-	movie, err := utils.MakeRequest[models.MovieDetailsResponse](url, headers)
+	movie, err := utils.MakeRequest[models.MovieDetailsResponse]("GET", url, headers, nil)
 	return movie, err
 }
 

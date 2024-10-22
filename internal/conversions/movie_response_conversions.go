@@ -175,3 +175,10 @@ func (s *MovieResponseConverter) ToMovieLanguages() []*db.UpsertMovieLanguagePar
 
 	return p
 }
+
+func (s *MovieResponseConverter) ToEmbeddingArg() *models.EmbeddingArg {
+	m := s.movie
+	return &models.EmbeddingArg{
+		Data: m.Overview,
+	}
+}
