@@ -1,6 +1,7 @@
 package conversions
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/charlesoller/omni-import-microservice/internal/db"
@@ -178,7 +179,9 @@ func (s *MovieResponseConverter) ToMovieLanguages() []*db.UpsertMovieLanguagePar
 
 func (s *MovieResponseConverter) ToEmbeddingArg() *models.EmbeddingArg {
 	m := s.movie
+	data := fmt.Sprintf("Title: %v\nOverview: %v", m.Title, m.Overview)
+
 	return &models.EmbeddingArg{
-		Data: m.Overview,
+		Data: data,
 	}
 }

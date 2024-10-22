@@ -21,11 +21,11 @@ func (s *embeddingService) makeRequest(body *models.EmbeddingArg) (*models.Embed
 	return embedding, err
 }
 
-func (s *embeddingService) EmbedMovie(m *models.EmbeddingArg) ([]float32, error) {
+func (s *embeddingService) EmbedMovie(m *models.EmbeddingArg) (*[]float32, error) {
 	embedding, err := s.makeRequest(m)
 	if err != nil || embedding == nil {
 		return nil, err
 	}
 
-	return embedding.Embedding, err
+	return &embedding.Embedding, err
 }

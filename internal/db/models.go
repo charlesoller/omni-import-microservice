@@ -6,6 +6,8 @@ package db
 
 import (
 	"time"
+
+	pgvector_go "github.com/pgvector/pgvector-go"
 )
 
 type CastMember struct {
@@ -75,25 +77,26 @@ type Language struct {
 }
 
 type Movie struct {
-	ID               int32     `json:"id"`
-	Title            string    `json:"title"`
-	OriginalTitle    string    `json:"original_title"`
-	Overview         string    `json:"overview"`
-	ReleaseDate      time.Time `json:"release_date"`
-	Runtime          int32     `json:"runtime"`
-	Budget           int64     `json:"budget"`
-	Revenue          int64     `json:"revenue"`
-	Popularity       float64   `json:"popularity"`
-	VoteAverage      float64   `json:"vote_average"`
-	VoteCount        int32     `json:"vote_count"`
-	Status           string    `json:"status"`
-	Tagline          string    `json:"tagline"`
-	Homepage         string    `json:"homepage"`
-	OriginalLanguage string    `json:"original_language"`
-	Adult            bool      `json:"adult"`
-	BackdropPath     string    `json:"backdrop_path"`
-	PosterPath       string    `json:"poster_path"`
-	CollectionID     int32     `json:"collection_id"`
+	ID               int32              `json:"id"`
+	Title            string             `json:"title"`
+	OriginalTitle    string             `json:"original_title"`
+	Overview         string             `json:"overview"`
+	ReleaseDate      time.Time          `json:"release_date"`
+	Runtime          int32              `json:"runtime"`
+	Budget           int64              `json:"budget"`
+	Revenue          int64              `json:"revenue"`
+	Popularity       float64            `json:"popularity"`
+	VoteAverage      float64            `json:"vote_average"`
+	VoteCount        int32              `json:"vote_count"`
+	Status           string             `json:"status"`
+	Tagline          string             `json:"tagline"`
+	Homepage         string             `json:"homepage"`
+	OriginalLanguage string             `json:"original_language"`
+	Adult            bool               `json:"adult"`
+	BackdropPath     string             `json:"backdrop_path"`
+	PosterPath       string             `json:"poster_path"`
+	CollectionID     int32              `json:"collection_id"`
+	Embedding        pgvector_go.Vector `json:"embedding"`
 }
 
 type MovieCountry struct {

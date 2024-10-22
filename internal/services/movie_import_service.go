@@ -9,6 +9,7 @@ import (
 	"github.com/charlesoller/omni-import-microservice/internal/conversions"
 	"github.com/charlesoller/omni-import-microservice/internal/database"
 	"github.com/charlesoller/omni-import-microservice/internal/db"
+	"github.com/pgvector/pgvector-go"
 )
 
 type movieImportService struct {
@@ -45,11 +46,6 @@ func (s *movieImportService) importMovie(id int) {
 	}
 
 	m := conversions.NewMovieResponseConverter(movie)
-	embedding, err := s.embed.EmbedMovie(m.ToEmbeddingArg())
-	if err != nil {
-		log.Fatalln(err)
-	}
-	fmt.Println(embedding)
 
 	if err = s.transact(m); err != nil {
 		// handle here
@@ -93,6 +89,14 @@ func (s *movieImportService) transact(m *conversions.MovieResponseConverter) err
 			return err
 		}
 		if err := s.upsertMovieLanguages(txCtx, m.ToMovieLanguages()); err != nil {
+			return err
+		}
+		params, err := s.createEmbedding(m)
+		if err != nil {
+			return err
+		}
+
+		if err := s.updateEmbedding(txCtx, params); err != nil {
 			return err
 		}
 
@@ -191,4 +195,28 @@ func (s *movieImportService) upsertMovie(txCtx context.Context, m *db.UpsertMovi
 		return err
 	}
 	return nil
+}
+
+func (s *movieImportService) updateEmbedding(txCtx context.Context, arg *db.UpdateMovieEmbeddingParams) error {
+	if err := s.db.Queries.UpdateMovieEmbedding(txCtx, *arg); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s *movieImportService) createEmbedding(m *conversions.MovieResponseConverter) (*db.UpdateMovieEmbeddingParams, error) {
+	embedding, err := s.embed.EmbedMovie(m.ToEmbeddingArg())
+
+	// fmt.Printf("Type: %T \t Length: %v\n", *embedding, len(*embedding))
+	if err != nil || embedding == nil {
+		return nil, err
+	}
+
+	upsertParams := db.UpdateMovieEmbeddingParams{
+		ID:        m.ToMovie().ID,
+		Embedding: pgvector.NewVector(*embedding),
+	}
+
+	return &upsertParams, nil
 }

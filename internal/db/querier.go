@@ -9,6 +9,7 @@ import (
 )
 
 type Querier interface {
+	UpdateMovieEmbedding(ctx context.Context, arg UpdateMovieEmbeddingParams) error
 	UpsertCollection(ctx context.Context, arg UpsertCollectionParams) (Collection, error)
 	UpsertCountry(ctx context.Context, arg UpsertCountryParams) (Country, error)
 	UpsertCountryISO(ctx context.Context, iso31661 string) (Country, error)

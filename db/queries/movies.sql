@@ -28,3 +28,8 @@ ON CONFLICT (id) DO UPDATE SET
   poster_path = EXCLUDED.poster_path,
   collection_id = EXCLUDED.collection_id
 RETURNING *;
+
+-- name: UpdateMovieEmbedding :exec
+UPDATE movies 
+SET embedding = $2
+WHERE id = $1;

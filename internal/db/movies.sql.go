@@ -8,7 +8,25 @@ package db
 import (
 	"context"
 	"time"
+
+	pgvector_go "github.com/pgvector/pgvector-go"
 )
+
+const updateMovieEmbedding = `-- name: UpdateMovieEmbedding :exec
+UPDATE movies 
+SET embedding = $2
+WHERE id = $1
+`
+
+type UpdateMovieEmbeddingParams struct {
+	ID        int32              `json:"id"`
+	Embedding pgvector_go.Vector `json:"embedding"`
+}
+
+func (q *Queries) UpdateMovieEmbedding(ctx context.Context, arg UpdateMovieEmbeddingParams) error {
+	_, err := q.exec(ctx, q.updateMovieEmbeddingStmt, updateMovieEmbedding, arg.ID, arg.Embedding)
+	return err
+}
 
 const upsertMovie = `-- name: UpsertMovie :one
 INSERT INTO movies (
@@ -39,7 +57,7 @@ ON CONFLICT (id) DO UPDATE SET
   backdrop_path = EXCLUDED.backdrop_path,
   poster_path = EXCLUDED.poster_path,
   collection_id = EXCLUDED.collection_id
-RETURNING id, title, original_title, overview, release_date, runtime, budget, revenue, popularity, vote_average, vote_count, status, tagline, homepage, original_language, adult, backdrop_path, poster_path, collection_id
+RETURNING id, title, original_title, overview, release_date, runtime, budget, revenue, popularity, vote_average, vote_count, status, tagline, homepage, original_language, adult, backdrop_path, poster_path, collection_id, embedding
 `
 
 type UpsertMovieParams struct {
@@ -107,6 +125,7 @@ func (q *Queries) UpsertMovie(ctx context.Context, arg UpsertMovieParams) (Movie
 		&i.BackdropPath,
 		&i.PosterPath,
 		&i.CollectionID,
+		&i.Embedding,
 	)
 	return i, err
 }
