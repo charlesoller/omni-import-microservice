@@ -27,6 +27,9 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	if q.updateMovieEmbeddingStmt, err = db.PrepareContext(ctx, updateMovieEmbedding); err != nil {
 		return nil, fmt.Errorf("error preparing query UpdateMovieEmbedding: %w", err)
 	}
+	if q.upsertCastMemberStmt, err = db.PrepareContext(ctx, upsertCastMember); err != nil {
+		return nil, fmt.Errorf("error preparing query UpsertCastMember: %w", err)
+	}
 	if q.upsertCollectionStmt, err = db.PrepareContext(ctx, upsertCollection); err != nil {
 		return nil, fmt.Errorf("error preparing query UpsertCollection: %w", err)
 	}
@@ -35,6 +38,18 @@ func Prepare(ctx context.Context, db DBTX) (*Queries, error) {
 	}
 	if q.upsertCountryISOStmt, err = db.PrepareContext(ctx, upsertCountryISO); err != nil {
 		return nil, fmt.Errorf("error preparing query UpsertCountryISO: %w", err)
+	}
+	if q.upsertCreditStmt, err = db.PrepareContext(ctx, upsertCredit); err != nil {
+		return nil, fmt.Errorf("error preparing query UpsertCredit: %w", err)
+	}
+	if q.upsertCreditCastMemberStmt, err = db.PrepareContext(ctx, upsertCreditCastMember); err != nil {
+		return nil, fmt.Errorf("error preparing query UpsertCreditCastMember: %w", err)
+	}
+	if q.upsertCreditCrewMemberStmt, err = db.PrepareContext(ctx, upsertCreditCrewMember); err != nil {
+		return nil, fmt.Errorf("error preparing query UpsertCreditCrewMember: %w", err)
+	}
+	if q.upsertCrewMemberStmt, err = db.PrepareContext(ctx, upsertCrewMember); err != nil {
+		return nil, fmt.Errorf("error preparing query UpsertCrewMember: %w", err)
 	}
 	if q.upsertGenreStmt, err = db.PrepareContext(ctx, upsertGenre); err != nil {
 		return nil, fmt.Errorf("error preparing query UpsertGenre: %w", err)
@@ -70,6 +85,11 @@ func (q *Queries) Close() error {
 			err = fmt.Errorf("error closing updateMovieEmbeddingStmt: %w", cerr)
 		}
 	}
+	if q.upsertCastMemberStmt != nil {
+		if cerr := q.upsertCastMemberStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing upsertCastMemberStmt: %w", cerr)
+		}
+	}
 	if q.upsertCollectionStmt != nil {
 		if cerr := q.upsertCollectionStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing upsertCollectionStmt: %w", cerr)
@@ -83,6 +103,26 @@ func (q *Queries) Close() error {
 	if q.upsertCountryISOStmt != nil {
 		if cerr := q.upsertCountryISOStmt.Close(); cerr != nil {
 			err = fmt.Errorf("error closing upsertCountryISOStmt: %w", cerr)
+		}
+	}
+	if q.upsertCreditStmt != nil {
+		if cerr := q.upsertCreditStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing upsertCreditStmt: %w", cerr)
+		}
+	}
+	if q.upsertCreditCastMemberStmt != nil {
+		if cerr := q.upsertCreditCastMemberStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing upsertCreditCastMemberStmt: %w", cerr)
+		}
+	}
+	if q.upsertCreditCrewMemberStmt != nil {
+		if cerr := q.upsertCreditCrewMemberStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing upsertCreditCrewMemberStmt: %w", cerr)
+		}
+	}
+	if q.upsertCrewMemberStmt != nil {
+		if cerr := q.upsertCrewMemberStmt.Close(); cerr != nil {
+			err = fmt.Errorf("error closing upsertCrewMemberStmt: %w", cerr)
 		}
 	}
 	if q.upsertGenreStmt != nil {
@@ -165,9 +205,14 @@ type Queries struct {
 	db                               DBTX
 	tx                               *sql.Tx
 	updateMovieEmbeddingStmt         *sql.Stmt
+	upsertCastMemberStmt             *sql.Stmt
 	upsertCollectionStmt             *sql.Stmt
 	upsertCountryStmt                *sql.Stmt
 	upsertCountryISOStmt             *sql.Stmt
+	upsertCreditStmt                 *sql.Stmt
+	upsertCreditCastMemberStmt       *sql.Stmt
+	upsertCreditCrewMemberStmt       *sql.Stmt
+	upsertCrewMemberStmt             *sql.Stmt
 	upsertGenreStmt                  *sql.Stmt
 	upsertLanguageStmt               *sql.Stmt
 	upsertMovieStmt                  *sql.Stmt
@@ -183,9 +228,14 @@ func (q *Queries) WithTx(tx *sql.Tx) *Queries {
 		db:                               tx,
 		tx:                               tx,
 		updateMovieEmbeddingStmt:         q.updateMovieEmbeddingStmt,
+		upsertCastMemberStmt:             q.upsertCastMemberStmt,
 		upsertCollectionStmt:             q.upsertCollectionStmt,
 		upsertCountryStmt:                q.upsertCountryStmt,
 		upsertCountryISOStmt:             q.upsertCountryISOStmt,
+		upsertCreditStmt:                 q.upsertCreditStmt,
+		upsertCreditCastMemberStmt:       q.upsertCreditCastMemberStmt,
+		upsertCreditCrewMemberStmt:       q.upsertCreditCrewMemberStmt,
+		upsertCrewMemberStmt:             q.upsertCrewMemberStmt,
 		upsertGenreStmt:                  q.upsertGenreStmt,
 		upsertLanguageStmt:               q.upsertLanguageStmt,
 		upsertMovieStmt:                  q.upsertMovieStmt,

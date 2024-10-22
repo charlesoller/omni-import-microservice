@@ -12,7 +12,7 @@ type embeddingService struct {
 func NewEmbeddingService() *embeddingService {
 	return &embeddingService{
 		// Replace below with env
-		url: "http://localhost:8000/api/embed",
+		url: "http://localhost:8000/api/embed/",
 	}
 }
 

@@ -1,6 +1,7 @@
 package app
 
 import (
+	_ "net/http/pprof"
 	"log"
 	"net/http"
 	"os"
@@ -32,7 +33,14 @@ func Setup() *echo.Echo {
 	tmdbService := services.NewTmdbService(tmdbAuth)
 	embeddingService := services.NewEmbeddingService()
 	movieImportService := services.NewMovieImportService(tmdbService, embeddingService, store)
-	movieImportService.StartImport(1)
+
+	go func() {
+			log.Println("Starting pprof server on :6060")
+			log.Println(http.ListenAndServe("localhost:6060", nil)) // Default pprof endpoints are served here
+	}()
+
+	// movieImportService.StartImport(20)	// Start Index
+	movieImportService.StartMultithreadedImport(8, 1000, 35)	// Num Workers, Num Movies
 
 	return e
 }

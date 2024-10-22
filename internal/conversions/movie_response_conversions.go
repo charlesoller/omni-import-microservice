@@ -185,3 +185,86 @@ func (s *MovieResponseConverter) ToEmbeddingArg() *models.EmbeddingArg {
 		Data: data,
 	}
 }
+
+func (s *MovieResponseConverter) ToCredits() int32 {
+	m := s.movie
+	return int32(m.ID)
+}
+
+func (s *MovieResponseConverter) ToCastMembers() []*db.UpsertCastMemberParams {
+	c := s.movie.Credits.Cast
+	p := make([]*db.UpsertCastMemberParams, 0, len(c))
+
+	for _, cm := range c {
+		p = append(p, &db.UpsertCastMemberParams{
+			ID: int32(cm.ID),
+			CastID: cm.CastID,
+			Character: cm.Character,
+			CreditID: cm.CreditID,
+			Gender: cm.Gender,
+			Adult: cm.Adult,
+			KnownForDepartment: cm.KnownForDepartment,
+			Name: cm.Name,
+			OriginalName: cm.OriginalName,
+			Popularity: cm.Popularity,
+			ProfilePath: cm.ProfilePath,
+			Order: cm.Order,
+		})
+	}
+
+	return p
+}
+
+func (s *MovieResponseConverter) ToCrewMembers() []*db.UpsertCrewMemberParams {
+	c := s.movie.Credits.Crew
+	p := make([]*db.UpsertCrewMemberParams, 0, len(c))
+
+	for _, cm := range c {
+		p = append(p, &db.UpsertCrewMemberParams{
+			ID: int32(cm.ID),
+			CreditID: cm.CreditID,
+			Department: cm.Department,
+			Job: cm.Job,
+			Gender: cm.Gender,
+			Adult: cm.Adult,
+			KnownForDepartment: cm.KnownForDepartment,
+			Name: cm.Name,
+			OriginalName: cm.OriginalName,
+			Popularity: cm.Popularity,
+			ProfilePath: cm.ProfilePath,
+		})
+	}
+
+	return p
+}
+
+
+func (s *MovieResponseConverter) ToCreditsCastMembers() []*db.UpsertCreditCastMemberParams {
+	m := s.movie
+	c := m.Credits.Cast
+	p := make([]*db.UpsertCreditCastMemberParams, 0, len(c))
+
+	for _, cm := range c {
+		p = append(p, &db.UpsertCreditCastMemberParams{
+			CreditID: int32(m.ID),
+			CastID: cm.ID,
+		})
+	}
+
+	return p
+}
+
+func (s *MovieResponseConverter) ToCreditsCrewMembers() []*db.UpsertCreditCrewMemberParams {
+	m := s.movie
+	c := m.Credits.Crew
+	p := make([]*db.UpsertCreditCrewMemberParams, 0, len(c))
+
+	for _, cm := range c {
+		p = append(p, &db.UpsertCreditCrewMemberParams{
+			CreditID: int32(m.ID),
+			CrewID: cm.ID,
+		})
+	}
+
+	return p
+}

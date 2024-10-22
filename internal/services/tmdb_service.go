@@ -34,7 +34,7 @@ func (s *tmdbService) makeRequest(endpoint string) (*models.MovieDetailsResponse
 }
 
 func (s *tmdbService) GetMovieDetails(id int) (*models.MovieDetailsResponse, error) {
-	endpoint := fmt.Sprintf("/movie/%s", strconv.Itoa(id))
+	endpoint := fmt.Sprintf("/movie/%s?append_to_response=credits", strconv.Itoa(id))
 	movie, err := s.makeRequest(endpoint)
 	if err != nil || movie.ID == 0 {
 		return nil, err
