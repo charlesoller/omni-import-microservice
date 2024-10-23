@@ -13,7 +13,6 @@ import (
 type CastMember struct {
 	ID                 int32   `json:"id"`
 	CastID             int32   `json:"cast_id"`
-	Character          string  `json:"character"`
 	CreditID           string  `json:"credit_id"`
 	Gender             int16   `json:"gender"`
 	Adult              bool    `json:"adult"`
@@ -22,7 +21,6 @@ type CastMember struct {
 	OriginalName       string  `json:"original_name"`
 	Popularity         float64 `json:"popularity"`
 	ProfilePath        string  `json:"profile_path"`
-	Order              int32   `json:"order"`
 }
 
 type Collection struct {
@@ -42,20 +40,22 @@ type Credit struct {
 }
 
 type CreditsCastMember struct {
-	CreditID int32 `json:"credit_id"`
-	CastID   int32 `json:"cast_id"`
+	CreditID  int32  `json:"credit_id"`
+	MemberID  int32  `json:"member_id"`
+	Character string `json:"character"`
+	Order     int32  `json:"order"`
 }
 
 type CreditsCrewMember struct {
-	CreditID int32 `json:"credit_id"`
-	CrewID   int32 `json:"crew_id"`
+	CreditID   int32  `json:"credit_id"`
+	MemberID   int32  `json:"member_id"`
+	Department string `json:"department"`
+	Job        string `json:"job"`
 }
 
 type CrewMember struct {
 	ID                 int32   `json:"id"`
 	CreditID           string  `json:"credit_id"`
-	Department         string  `json:"department"`
-	Job                string  `json:"job"`
 	Gender             int16   `json:"gender"`
 	Adult              bool    `json:"adult"`
 	KnownForDepartment string  `json:"known_for_department"`

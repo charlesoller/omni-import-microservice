@@ -11,15 +11,14 @@ import (
 
 const upsertCastMember = `-- name: UpsertCastMember :one
 INSERT INTO cast_members (
-    id, cast_id, character, credit_id, gender, adult, known_for_department, 
-    name, original_name, popularity, profile_path, "order"
+    id, cast_id, credit_id, gender, adult, known_for_department, 
+    name, original_name, popularity, profile_path
 ) VALUES (
-    $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12
+    $1, $2, $3, $4, $5, $6, $7, $8, $9, $10
 )
 ON CONFLICT (id) 
 DO UPDATE SET
     cast_id = EXCLUDED.cast_id,
-    character = EXCLUDED.character,
     credit_id = EXCLUDED.credit_id,
     gender = EXCLUDED.gender,
     adult = EXCLUDED.adult,
@@ -27,15 +26,13 @@ DO UPDATE SET
     name = EXCLUDED.name,
     original_name = EXCLUDED.original_name,
     popularity = EXCLUDED.popularity,
-    profile_path = EXCLUDED.profile_path,
-    "order" = EXCLUDED."order"
-RETURNING id, cast_id, character, credit_id, gender, adult, known_for_department, name, original_name, popularity, profile_path, "order"
+    profile_path = EXCLUDED.profile_path
+RETURNING id, cast_id, credit_id, gender, adult, known_for_department, name, original_name, popularity, profile_path
 `
 
 type UpsertCastMemberParams struct {
 	ID                 int32   `json:"id"`
 	CastID             int32   `json:"cast_id"`
-	Character          string  `json:"character"`
 	CreditID           string  `json:"credit_id"`
 	Gender             int16   `json:"gender"`
 	Adult              bool    `json:"adult"`
@@ -44,14 +41,12 @@ type UpsertCastMemberParams struct {
 	OriginalName       string  `json:"original_name"`
 	Popularity         float64 `json:"popularity"`
 	ProfilePath        string  `json:"profile_path"`
-	Order              int32   `json:"order"`
 }
 
 func (q *Queries) UpsertCastMember(ctx context.Context, arg UpsertCastMemberParams) (CastMember, error) {
 	row := q.queryRow(ctx, q.upsertCastMemberStmt, upsertCastMember,
 		arg.ID,
 		arg.CastID,
-		arg.Character,
 		arg.CreditID,
 		arg.Gender,
 		arg.Adult,
@@ -60,13 +55,11 @@ func (q *Queries) UpsertCastMember(ctx context.Context, arg UpsertCastMemberPara
 		arg.OriginalName,
 		arg.Popularity,
 		arg.ProfilePath,
-		arg.Order,
 	)
 	var i CastMember
 	err := row.Scan(
 		&i.ID,
 		&i.CastID,
-		&i.Character,
 		&i.CreditID,
 		&i.Gender,
 		&i.Adult,
@@ -75,7 +68,6 @@ func (q *Queries) UpsertCastMember(ctx context.Context, arg UpsertCastMemberPara
 		&i.OriginalName,
 		&i.Popularity,
 		&i.ProfilePath,
-		&i.Order,
 	)
 	return i, err
 }

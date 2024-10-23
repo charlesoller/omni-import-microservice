@@ -1,13 +1,11 @@
 -- name: UpsertCrewMember :one
 INSERT INTO crew_members (
-    id, credit_id, department, job, gender, adult, known_for_department,
+    id, credit_id, gender, adult, known_for_department,
     name, original_name, popularity, profile_path
 ) VALUES (
-    $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11
+    $1, $2, $3, $4, $5, $6, $7, $8, $9
 )
 ON CONFLICT (id) DO UPDATE SET
-    department = EXCLUDED.department,
-    job = EXCLUDED.job,
     gender = EXCLUDED.gender,
     adult = EXCLUDED.adult,
     known_for_department = EXCLUDED.known_for_department,

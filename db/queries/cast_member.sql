@@ -1,14 +1,13 @@
 -- name: UpsertCastMember :one
 INSERT INTO cast_members (
-    id, cast_id, character, credit_id, gender, adult, known_for_department, 
-    name, original_name, popularity, profile_path, "order"
+    id, cast_id, credit_id, gender, adult, known_for_department, 
+    name, original_name, popularity, profile_path
 ) VALUES (
-    $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12
+    $1, $2, $3, $4, $5, $6, $7, $8, $9, $10
 )
 ON CONFLICT (id) 
 DO UPDATE SET
     cast_id = EXCLUDED.cast_id,
-    character = EXCLUDED.character,
     credit_id = EXCLUDED.credit_id,
     gender = EXCLUDED.gender,
     adult = EXCLUDED.adult,
@@ -16,6 +15,5 @@ DO UPDATE SET
     name = EXCLUDED.name,
     original_name = EXCLUDED.original_name,
     popularity = EXCLUDED.popularity,
-    profile_path = EXCLUDED.profile_path,
-    "order" = EXCLUDED."order"
+    profile_path = EXCLUDED.profile_path
 RETURNING *;

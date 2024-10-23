@@ -11,14 +11,12 @@ import (
 
 const upsertCrewMember = `-- name: UpsertCrewMember :one
 INSERT INTO crew_members (
-    id, credit_id, department, job, gender, adult, known_for_department,
+    id, credit_id, gender, adult, known_for_department,
     name, original_name, popularity, profile_path
 ) VALUES (
-    $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11
+    $1, $2, $3, $4, $5, $6, $7, $8, $9
 )
 ON CONFLICT (id) DO UPDATE SET
-    department = EXCLUDED.department,
-    job = EXCLUDED.job,
     gender = EXCLUDED.gender,
     adult = EXCLUDED.adult,
     known_for_department = EXCLUDED.known_for_department,
@@ -32,8 +30,6 @@ RETURNING id
 type UpsertCrewMemberParams struct {
 	ID                 int32   `json:"id"`
 	CreditID           string  `json:"credit_id"`
-	Department         string  `json:"department"`
-	Job                string  `json:"job"`
 	Gender             int16   `json:"gender"`
 	Adult              bool    `json:"adult"`
 	KnownForDepartment string  `json:"known_for_department"`
@@ -47,8 +43,6 @@ func (q *Queries) UpsertCrewMember(ctx context.Context, arg UpsertCrewMemberPara
 	row := q.queryRow(ctx, q.upsertCrewMemberStmt, upsertCrewMember,
 		arg.ID,
 		arg.CreditID,
-		arg.Department,
-		arg.Job,
 		arg.Gender,
 		arg.Adult,
 		arg.KnownForDepartment,

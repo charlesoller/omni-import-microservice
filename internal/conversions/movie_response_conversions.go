@@ -199,7 +199,6 @@ func (s *MovieResponseConverter) ToCastMembers() []*db.UpsertCastMemberParams {
 		p = append(p, &db.UpsertCastMemberParams{
 			ID: int32(cm.ID),
 			CastID: cm.CastID,
-			Character: cm.Character,
 			CreditID: cm.CreditID,
 			Gender: cm.Gender,
 			Adult: cm.Adult,
@@ -208,7 +207,6 @@ func (s *MovieResponseConverter) ToCastMembers() []*db.UpsertCastMemberParams {
 			OriginalName: cm.OriginalName,
 			Popularity: cm.Popularity,
 			ProfilePath: cm.ProfilePath,
-			Order: cm.Order,
 		})
 	}
 
@@ -223,8 +221,6 @@ func (s *MovieResponseConverter) ToCrewMembers() []*db.UpsertCrewMemberParams {
 		p = append(p, &db.UpsertCrewMemberParams{
 			ID: int32(cm.ID),
 			CreditID: cm.CreditID,
-			Department: cm.Department,
-			Job: cm.Job,
 			Gender: cm.Gender,
 			Adult: cm.Adult,
 			KnownForDepartment: cm.KnownForDepartment,
@@ -247,7 +243,9 @@ func (s *MovieResponseConverter) ToCreditsCastMembers() []*db.UpsertCreditCastMe
 	for _, cm := range c {
 		p = append(p, &db.UpsertCreditCastMemberParams{
 			CreditID: int32(m.ID),
-			CastID: cm.ID,
+			MemberID: cm.ID,
+			Character: cm.Character,
+			Order: int32(cm.Order),
 		})
 	}
 
@@ -262,7 +260,9 @@ func (s *MovieResponseConverter) ToCreditsCrewMembers() []*db.UpsertCreditCrewMe
 	for _, cm := range c {
 		p = append(p, &db.UpsertCreditCrewMemberParams{
 			CreditID: int32(m.ID),
-			CrewID: cm.ID,
+			MemberID: cm.ID,
+			Job: cm.Job,
+			Department: cm.Department,
 		})
 	}
 

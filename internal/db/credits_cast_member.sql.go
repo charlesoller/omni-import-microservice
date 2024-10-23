@@ -11,24 +11,38 @@ import (
 
 const upsertCreditCastMember = `-- name: UpsertCreditCastMember :one
 INSERT INTO credits_cast_member (
-  credit_id, cast_id
+  credit_id, member_id, character, "order"
 ) VALUES (
-  $1, $2
+  $1, $2, $3, $4
 )
-ON CONFLICT (credit_id, cast_id) DO UPDATE SET
+ON CONFLICT (credit_id, member_id) DO UPDATE SET
   credit_id = EXCLUDED.credit_id,  
-  cast_id = EXCLUDED.cast_id
-RETURNING credit_id, cast_id
+  member_id = EXCLUDED.member_id,
+  character = EXCLUDED.character,
+  "order" = EXCLUDED."order"
+RETURNING credit_id, member_id, character, "order"
 `
 
 type UpsertCreditCastMemberParams struct {
-	CreditID int32 `json:"credit_id"`
-	CastID   int32 `json:"cast_id"`
+	CreditID  int32  `json:"credit_id"`
+	MemberID  int32  `json:"member_id"`
+	Character string `json:"character"`
+	Order     int32  `json:"order"`
 }
 
 func (q *Queries) UpsertCreditCastMember(ctx context.Context, arg UpsertCreditCastMemberParams) (CreditsCastMember, error) {
-	row := q.queryRow(ctx, q.upsertCreditCastMemberStmt, upsertCreditCastMember, arg.CreditID, arg.CastID)
+	row := q.queryRow(ctx, q.upsertCreditCastMemberStmt, upsertCreditCastMember,
+		arg.CreditID,
+		arg.MemberID,
+		arg.Character,
+		arg.Order,
+	)
 	var i CreditsCastMember
-	err := row.Scan(&i.CreditID, &i.CastID)
+	err := row.Scan(
+		&i.CreditID,
+		&i.MemberID,
+		&i.Character,
+		&i.Order,
+	)
 	return i, err
 }

@@ -4,9 +4,21 @@ import (
 	"github.com/charlesoller/omni-import-microservice/internal/db"
 )
 
+type CastMember struct {
+	db.CastMember
+	Character string `json:"character"`
+	Order     int    `json:"order"`
+}
+
+type CrewMember struct {
+	db.CrewMember
+	Job        string `json:"job"`
+	Department string `json:"department"`
+}
+
 type CreditsResponse struct {
-	Cast []db.CastMember `json:"cast"`
-	Crew []db.CrewMember `json:"crew"`
+	Cast []CastMember `json:"cast"`
+	Crew []CrewMember `json:"crew"`
 }
 type MovieDetailsResponse struct {
 	ID                  int                    `json:"id"`
