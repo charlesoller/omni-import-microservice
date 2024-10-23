@@ -89,7 +89,7 @@ func (s *movieImportService) importMovie(id int) {
 
 func (s *movieImportService) transact(m *conversions.MovieResponseConverter) error {
 	ctx := context.Background()
-	txCtx, cancel := context.WithTimeout(ctx, 120*time.Second)
+	txCtx, cancel := context.WithTimeout(ctx, 180*time.Second)
 	defer cancel()
 
 	if err := s.db.ExecTx(txCtx, func(q *db.Queries) error {
