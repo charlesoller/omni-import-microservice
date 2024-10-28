@@ -3,6 +3,8 @@ package conversions
 import (
 	"fmt"
 	"time"
+	"strings"
+	"sort"
 
 	"github.com/charlesoller/omni-import-microservice/internal/db"
 	"github.com/charlesoller/omni-import-microservice/internal/models"
@@ -179,7 +181,51 @@ func (s *MovieResponseConverter) ToMovieLanguages() []*db.UpsertMovieLanguagePar
 
 func (s *MovieResponseConverter) ToEmbeddingArg() *models.EmbeddingArg {
 	m := s.movie
-	data := fmt.Sprintf("Title: %v\nOverview: %v", m.Title, m.Overview)
+	
+	var genres []string
+	for _, g := range m.Genres {
+		genres = append(genres, g.Name)
+	}
+
+	var cast []models.CastMember
+	cast = append(cast, m.Credits.Cast...)
+
+	sort.Slice(cast, func(i, j int) bool {
+		return cast[i].Order < cast[j].Order
+	})
+
+	limit := 5
+	if len(cast) < limit {
+		limit = len(cast)
+	}
+
+	var castNames []string
+	for _, cam := range cast[:limit] {
+		castNames = append(castNames, cam.Name)
+	}
+
+	var crew []models.CrewMember
+	crew = append(crew, m.Credits.Crew...)
+
+	sort.Slice(crew, func(i, j int) bool {
+		return crew[i].Popularity < crew[j].Popularity
+	})
+
+	limit = 3
+	if len(crew) < limit {
+		limit = len(crew)
+	}
+
+	var crewNames []string
+	for _, crm := range crew[:limit] {
+		crewNames = append(crewNames, crm.Name)
+	}
+
+	genreString := strings.Join(genres, ", ")
+	castString := strings.Join(castNames, ", ")
+	crewString := strings.Join(crewNames, ", ")
+
+	data := fmt.Sprintf("Title: %v\nOverview: %v\nRelease Date: %v\nGenres: %v\nCast: %v\nCrew: %v", m.Title, m.Overview, m.ReleaseDate, genreString, castString, crewString)
 
 	return &models.EmbeddingArg{
 		Data: data,

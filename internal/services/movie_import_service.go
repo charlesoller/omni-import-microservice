@@ -89,66 +89,66 @@ func (s *movieImportService) importMovie(id int) {
 
 func (s *movieImportService) transact(m *conversions.MovieResponseConverter) error {
 	ctx := context.Background()
-	txCtx, cancel := context.WithTimeout(ctx, 180*time.Second)
+	txCtx, cancel := context.WithTimeout(ctx, 300*time.Second)
 	defer cancel()
 
 	if err := s.db.ExecTx(txCtx, func(q *db.Queries) error {
-		if err := s.upsertCredit(txCtx, m.ToCredits()); err != nil {
-			return err
-		}
-		if err := s.upsertCastMembers(txCtx, m.ToCastMembers()); err != nil {
-			return err
-		}
-		if err := s.upsertCrewMembers(txCtx, m.ToCrewMembers()); err != nil {
-			return err
-		}
-		if err := s.upsertCountries(txCtx, m.ToCountries()); err != nil {
-			return err
-		}
-		if err := s.upsertLanguages(txCtx, m.ToLanguages()); err != nil {
-			return err
-		}
-		if err := s.upsertGenres(txCtx, m.ToGenres()); err != nil {
-			return err
-		}
-		if err := s.upsertProductionCompanies(txCtx, m.ToProductionCompanies()); err != nil {
-			return err
-		}
-		if err := s.upsertCollection(txCtx, m.ToCollection()); err != nil {
-			return err
-		}
-		if err := s.upsertMovie(txCtx, m.ToMovie()); err != nil {
-			return err
-		}
-
-		// Join tables
-		if err := s.upsertMovieGenres(txCtx, m.ToMovieGenres()); err != nil {
-			return err
-		}
-		if err := s.upsertMovieProductionCompanies(txCtx, m.ToMovieProductionCompanies()); err != nil {
-			return err
-		}
-		if err := s.upsertMovieCountries(txCtx, m.ToMovieCountries()); err != nil {
-			return err
-		}
-		if err := s.upsertMovieLanguages(txCtx, m.ToMovieLanguages()); err != nil {
-			return err
-		}
-		if err := s.upsertCreditsCastMembers(txCtx, m.ToCreditsCastMembers()); err != nil {
-			return err
-		}
-		if err := s.upsertCreditsCrewMembers(txCtx, m.ToCreditsCrewMembers()); err != nil {
-			return err
-		}
-
-		// params, err := s.createEmbedding(m)
-		// if err != nil {
+		// if err := s.upsertCountries(txCtx, m.ToCountries()); err != nil {
+		// 	return err
+		// }
+		// if err := s.upsertLanguages(txCtx, m.ToLanguages()); err != nil {
+		// 	return err
+		// }
+		// if err := s.upsertGenres(txCtx, m.ToGenres()); err != nil {
+		// 	return err
+		// }
+		// if err := s.upsertProductionCompanies(txCtx, m.ToProductionCompanies()); err != nil {
+		// 	return err
+		// }
+		// if err := s.upsertCollection(txCtx, m.ToCollection()); err != nil {
+		// 	return err
+		// }
+		// if err := s.upsertMovie(txCtx, m.ToMovie()); err != nil {
+		// 	return err
+		// }
+		// if err := s.upsertCredit(txCtx, m.ToCredits()); err != nil {
+		// 	return err
+		// }
+		// if err := s.upsertCastMembers(txCtx, m.ToCastMembers()); err != nil {
+		// 	return err
+		// }
+		// if err := s.upsertCrewMembers(txCtx, m.ToCrewMembers()); err != nil {
 		// 	return err
 		// }
 
-		// if err := s.updateEmbedding(txCtx, params); err != nil {
+		// // Join tables
+		// if err := s.upsertMovieGenres(txCtx, m.ToMovieGenres()); err != nil {
 		// 	return err
 		// }
+		// if err := s.upsertMovieProductionCompanies(txCtx, m.ToMovieProductionCompanies()); err != nil {
+		// 	return err
+		// }
+		// if err := s.upsertMovieCountries(txCtx, m.ToMovieCountries()); err != nil {
+		// 	return err
+		// }
+		// if err := s.upsertMovieLanguages(txCtx, m.ToMovieLanguages()); err != nil {
+		// 	return err
+		// }
+		// if err := s.upsertCreditsCastMembers(txCtx, m.ToCreditsCastMembers()); err != nil {
+		// 	return err
+		// }
+		// if err := s.upsertCreditsCrewMembers(txCtx, m.ToCreditsCrewMembers()); err != nil {
+		// 	return err
+		// }
+
+		params, err := s.createEmbedding(m)
+		if err != nil {
+			return err
+		}
+
+		if err := s.updateEmbedding(txCtx, params); err != nil {
+			return err
+		}
 
 		return nil
 	}); err != nil {
