@@ -40,7 +40,8 @@ func Setup() *echo.Echo {
 	}()
 
 	// movieImportService.StartImport(20)	// Start Index
-	movieImportService.StartMultithreadedImport(8, 20000, 1)	// Num Workers, Num Movies, Start Index
+	// movieImportService.StartMultithreadedImport(6, 20000, 11679)	// Num Workers, Start Index, End Index
+	movieImportService.StartMultithreadedPopularImport(6, 1, 500)	// Num Workers, Start Page, End Page
 
 	return e
 }

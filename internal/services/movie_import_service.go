@@ -27,16 +27,18 @@ func NewMovieImportService(tmdb *tmdbService, embed *embeddingService, store *da
 	}
 }
 
-func (s *movieImportService) StartMultithreadedImport(numWorkers int, numMovies int, startIndex int) {
-	movieIndices := make(chan int, numMovies)
+func (s *movieImportService) StartMultithreadedImport(numWorkers int, startIndex int, endIndex int) {
+	numIndices := endIndex - startIndex + 1
+	movieIndices := make(chan int, numIndices)
 
 	fmt.Println("Loading movie indices...")
-	for i := 1; i <= numMovies; i++ {
-		movieIndices <- i + startIndex - 1
+	for i := startIndex; i <= endIndex; i++ {
+		movieIndices <- i
 	}
+
 	close(movieIndices)
 
-	fmt.Printf("%v movie indices loaded!\n", numMovies)
+	fmt.Printf("%v movie indices loaded!\n", numIndices)
 
 	var wg sync.WaitGroup
 	wg.Add(numWorkers)
@@ -58,6 +60,45 @@ func (s *movieImportService) StartMultithreadedImport(numWorkers int, numMovies 
 	wg.Wait() // Wait for all workers to finish
 }
 
+func (s *movieImportService) StartMultithreadedPopularImport(numWorkers int, startPage int, endPage int) {
+	for page := startPage; page < endPage; page++ {
+		fmt.Printf("Beginning import of page %v\n", page)
+
+		ids, err := s.tmdb.GetPopularMoviePageIds(page)
+		if err != nil || len(ids) == 0 {
+			log.Fatalf("Failed to fetch movies on page: %v\nError: %v", page, err.Error())
+		}
+
+		fmt.Println("Loading movie indices...")
+		movieIndices := make(chan int, len(ids))
+		for _, v := range ids {
+			movieIndices <- v
+		}
+
+		close(movieIndices)
+		fmt.Printf("%v movie indices loaded!\n", len(ids))
+
+		var wg sync.WaitGroup
+		wg.Add(numWorkers)
+		fmt.Printf("Wait group created with %v workers!\n", numWorkers)
+
+		for i := 0; i < numWorkers; i++ {
+			go func(workerId int) {
+				defer wg.Done()
+				for movieIndex := range movieIndices {
+					log.Printf("Worker %d importing movie %d", workerId, movieIndex)
+					s.importMovie(movieIndex)
+					log.Printf("Worker %d finished importing movie %d", workerId, movieIndex)
+				}
+				log.Printf("Worker %d has no more movies to process", workerId)
+			}(i)
+		}
+	
+		wg.Wait() // Wait for all workers to finish
+		log.Printf("Completed processing page %d", page)
+	}
+}
+
 func (s *movieImportService) StartImport(i int) {
 	for {
 		s.importMovie(i)
@@ -68,23 +109,19 @@ func (s *movieImportService) StartImport(i int) {
 func (s *movieImportService) importMovie(id int) {
 	movie, err := s.tmdb.GetMovieDetails(id)
 	if err != nil {
-		// handle here
-		log.Fatalln(err)
+		log.Fatalf("Failed to fetch movie with id: %d", id)
 	}
 	if movie == nil {
 		// Don't try to convert etc if no movie found
 		fmt.Printf("No movie found with ID: %v\n", id)
 		return
-	}
+}
 
 	m := conversions.NewMovieResponseConverter(movie)
 
 	if err = s.transact(m); err != nil {
-		// handle here
-		log.Fatalln(err)
+		log.Fatalf("Failed to import movie with id: %d\nError: %v", id, err.Error())
 	}
-
-	fmt.Printf("Successfully imported movie!\t%v\t%v\n", movie.ID, movie.Title)
 }
 
 func (s *movieImportService) transact(m *conversions.MovieResponseConverter) error {
@@ -93,53 +130,53 @@ func (s *movieImportService) transact(m *conversions.MovieResponseConverter) err
 	defer cancel()
 
 	if err := s.db.ExecTx(txCtx, func(q *db.Queries) error {
-		// if err := s.upsertCountries(txCtx, m.ToCountries()); err != nil {
-		// 	return err
-		// }
-		// if err := s.upsertLanguages(txCtx, m.ToLanguages()); err != nil {
-		// 	return err
-		// }
-		// if err := s.upsertGenres(txCtx, m.ToGenres()); err != nil {
-		// 	return err
-		// }
-		// if err := s.upsertProductionCompanies(txCtx, m.ToProductionCompanies()); err != nil {
-		// 	return err
-		// }
-		// if err := s.upsertCollection(txCtx, m.ToCollection()); err != nil {
-		// 	return err
-		// }
-		// if err := s.upsertMovie(txCtx, m.ToMovie()); err != nil {
-		// 	return err
-		// }
-		// if err := s.upsertCredit(txCtx, m.ToCredits()); err != nil {
-		// 	return err
-		// }
-		// if err := s.upsertCastMembers(txCtx, m.ToCastMembers()); err != nil {
-		// 	return err
-		// }
-		// if err := s.upsertCrewMembers(txCtx, m.ToCrewMembers()); err != nil {
-		// 	return err
-		// }
+		if err := s.upsertCountries(txCtx, m.ToCountries()); err != nil {
+			return err
+		}
+		if err := s.upsertLanguages(txCtx, m.ToLanguages()); err != nil {
+			return err
+		}
+		if err := s.upsertGenres(txCtx, m.ToGenres()); err != nil {
+			return err
+		}
+		if err := s.upsertProductionCompanies(txCtx, m.ToProductionCompanies()); err != nil {
+			return err
+		}
+		if err := s.upsertCollection(txCtx, m.ToCollection()); err != nil {
+			return err
+		}
+		if err := s.upsertMovie(txCtx, m.ToMovie()); err != nil {
+			return err
+		}
+		if err := s.upsertCredit(txCtx, m.ToCredits()); err != nil {
+			return err
+		}
+		if err := s.upsertCastMembers(txCtx, m.ToCastMembers()); err != nil {
+			return err
+		}
+		if err := s.upsertCrewMembers(txCtx, m.ToCrewMembers()); err != nil {
+			return err
+		}
 
 		// // Join tables
-		// if err := s.upsertMovieGenres(txCtx, m.ToMovieGenres()); err != nil {
-		// 	return err
-		// }
-		// if err := s.upsertMovieProductionCompanies(txCtx, m.ToMovieProductionCompanies()); err != nil {
-		// 	return err
-		// }
-		// if err := s.upsertMovieCountries(txCtx, m.ToMovieCountries()); err != nil {
-		// 	return err
-		// }
-		// if err := s.upsertMovieLanguages(txCtx, m.ToMovieLanguages()); err != nil {
-		// 	return err
-		// }
-		// if err := s.upsertCreditsCastMembers(txCtx, m.ToCreditsCastMembers()); err != nil {
-		// 	return err
-		// }
-		// if err := s.upsertCreditsCrewMembers(txCtx, m.ToCreditsCrewMembers()); err != nil {
-		// 	return err
-		// }
+		if err := s.upsertMovieGenres(txCtx, m.ToMovieGenres()); err != nil {
+			return err
+		}
+		if err := s.upsertMovieProductionCompanies(txCtx, m.ToMovieProductionCompanies()); err != nil {
+			return err
+		}
+		if err := s.upsertMovieCountries(txCtx, m.ToMovieCountries()); err != nil {
+			return err
+		}
+		if err := s.upsertMovieLanguages(txCtx, m.ToMovieLanguages()); err != nil {
+			return err
+		}
+		if err := s.upsertCreditsCastMembers(txCtx, m.ToCreditsCastMembers()); err != nil {
+			return err
+		}
+		if err := s.upsertCreditsCrewMembers(txCtx, m.ToCreditsCrewMembers()); err != nil {
+			return err
+		}
 
 		params, err := s.createEmbedding(m)
 		if err != nil {
